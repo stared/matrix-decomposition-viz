@@ -6,16 +6,12 @@
 const M = [
   [1, 2, -1],
   [2, 4, -2],
-  [3, 6. -3]
+  [3, 6, -3]
 ];
 
 // M[i, j] = U[i] * V[j]
 
-const dim = 1;
-const lr = 0.1;
-const steps = 100;
-
-function createMatrix(n, m) {
+function createZeroMatrix(n, m) {
   const M = [];
   for(let i = 0; i < n; i++) {
     M[i] = [];
@@ -26,7 +22,18 @@ function createMatrix(n, m) {
   return M;
 }
 
-console.log("createMatrix(4,2)", createMatrix(4,2));
+function createRandomMatrix(n, m) {
+  const M = [];
+  for(let i = 0; i < n; i++) {
+    M[i] = [];
+    for(let j = 0; j < m; j++) {
+      M[i][j] = Math.random() - 0.5;
+    }
+  }
+  return M;
+}
+
+// console.log("createZeroMatrix(4,2)", createZeroMatrix(4,2));
 
 function dot(u, v) {
   let res = 0;
@@ -37,19 +44,88 @@ function dot(u, v) {
   return res;
 }
 
+function vecMul(v, a) {
+  return v.map((value) => a * value);
+}
+
+function vecAddInPlace(v, u) {
+  u.forEach((value, i) => v[i] += value);
+}
+
+function matAddInPlace(V, U) {
+  U.forEach((row, i) => row.forEach((value, j) => V[i][j] += value));
+}
+
 function matrixToTriples(M) {
-  console.log("zzz");
   const triples = [];
   M.forEach((row, i) => row.forEach((value, j) => triples.push([i, j, value])));
   return triples;
 }
 
-console.log("matrixToTriples(M)", matrixToTriples(M));
+const triplets = matrixToTriples(M);
+// console.log("matrixToTriples(M)", matrixToTriples(M));
 
-const U = createMatrix(3, dim);
-const V = createMatrix(3, dim);
+function reconstructMatrix(U, V) {
+  const M = [];
+  for (let i = 0; i < U.length; i++) {
+    const row = [];
+    for (let j = 0; j < V.length; j++) {
+      row.push(dot(U[i], V[j]));
+    }
+    M.push(row);
+  }
+  return M;
+}
 
-const dU = createMatrix(3, dim);
-const dV = createMatrix(3, dim);
+const dim = 2;
+const U = createRandomMatrix(3, dim);
+const V = createRandomMatrix(3, dim);
 
-console.log("dot([1, 3], [-2, 5]", dot([1, 3], [-2, 5]));
+// console.log("dot([1, 3], [-2, 5]", dot([1, 3], [-2, 5]));
+
+
+function gradDescStep(triplets, U, V, lr) {
+
+  const dU = createZeroMatrix(3, dim);
+  const dV = createZeroMatrix(3, dim);
+
+  triplets.forEach((triplet) => {
+    const [i, j, value] = triplet;
+    const a = - lr * 2 * (dot(U[i], V[j]) - value);
+    vecAddInPlace(dU[i], vecMul(V[j], a));
+    vecAddInPlace(dV[j], vecMul(U[i], a));
+  });
+
+  matAddInPlace(U, dU);
+  matAddInPlace(V, dV);
+}
+
+
+function cost(triplets, U, V) {
+  let res = 0;
+  triplets.forEach((triplet) => {
+    const [i, j, value] = triplet;
+    res += Math.pow(dot(U[i], V[j]) - value, 2);
+  });
+  return res;
+}
+
+
+for (let step = 0; step < 100; step++) {
+  gradDescStep(triplets, U, V, 0.05);
+  if (step % 10 === 0) {
+    console.log(`loss (${step}): ${cost(triplets, U, V)}`);
+  }
+}
+
+function matPrint(M, name="") {
+  if(name) {
+    console.log(name);
+  }
+  console.log(M.map((row) =>  row.map((value) => value.toFixed(2)).join("  ")).join("\n"));
+}
+
+matPrint(U, "U");
+matPrint(V, "V");
+matPrint(reconstructMatrix(U, V), "M reconstructed");
+matPrint(M, "M ground truth");
