@@ -6,7 +6,8 @@
 const M = [
   [1, 2, -1],
   [2, 4, -2],
-  [3, 6, -3]
+  [3, 6, -3],
+  [5, 10, -5]
 ];
 
 // M[i, j] = U[i] * V[j]
@@ -77,17 +78,17 @@ function reconstructMatrix(U, V) {
   return M;
 }
 
-const dim = 2;
-const U = createRandomMatrix(3, dim);
-const V = createRandomMatrix(3, dim);
+const dim = 1;
+const U = createRandomMatrix(M.length, dim);
+const V = createRandomMatrix(M[0].length, dim);
 
 // console.log("dot([1, 3], [-2, 5]", dot([1, 3], [-2, 5]));
 
 
 function gradDescStep(triplets, U, V, lr) {
 
-  const dU = createZeroMatrix(3, dim);
-  const dV = createZeroMatrix(3, dim);
+  const dU = createZeroMatrix(U.length, U[0].length);
+  const dV = createZeroMatrix(V.length, V[0].length);
 
   triplets.forEach((triplet) => {
     const [i, j, value] = triplet;
@@ -112,7 +113,8 @@ function cost(triplets, U, V) {
 
 
 for (let step = 0; step < 100; step++) {
-  gradDescStep(triplets, U, V, 0.05);
+  // warning: it is super-easy to overshot learnin rate
+  gradDescStep(triplets, U, V, 0.005);
   if (step % 10 === 0) {
     console.log(`loss (${step}): ${cost(triplets, U, V)}`);
   }
