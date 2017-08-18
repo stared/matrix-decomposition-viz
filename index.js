@@ -80,13 +80,13 @@ function gradDescStep(triplets, U, V, lr) {
 }
 
 
-function cost(triplets, U, V) {
+function costRMSE(triplets, U, V) {
   let res = 0;
   triplets.forEach((triplet) => {
     const [i, j, value] = triplet;
     res += Math.pow(dot(U[i], V[j]) - value, 2);
   });
-  return res;
+  return Math.sqrt(res) / triplets.length;
 }
 
 function matPrint(M, name="", prec=2, len=7) {
@@ -130,7 +130,7 @@ for (let step = 0; step < 100; step++) {
   // warning: it is super-easy to overshot learning rate
   gradDescStep(triplets, U, V, 0.005);
   if (step % 10 === 0) {
-    console.log(`loss (${step}): ${cost(triplets, U, V)}`);
+    console.log(`loss (${step}): ${costRMSE(triplets, U, V)}`);
   }
 }
 
