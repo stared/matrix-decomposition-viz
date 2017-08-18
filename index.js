@@ -43,7 +43,11 @@ function matAddInPlace(V, U) {
 
 function matrixToTriples(M) {
   const triples = [];
-  M.forEach((row, i) => row.forEach((value, j) => triples.push([i, j, value])));
+  M.forEach((row, i) =>
+    row.forEach((value, j) => {
+      if (isFinite(value)) triples.push([i, j, value]);
+    })
+  );
   return triples;
 }
 
@@ -85,25 +89,39 @@ function cost(triplets, U, V) {
   return res;
 }
 
-function matPrint(M, name="") {
+function matPrint(M, name="", prec=2, len=7) {
   if(name) {
     console.log(name);
   }
-  console.log(M.map((row) =>  row.map((value) => value.toFixed(2)).join("  ")).join("\n"));
+  const text = M
+    .map((row) => row
+      .map((value) => (Array(len + 1).join(" ") + value.toFixed(prec)).slice(-len))
+      .join(" ")
+    )
+    .join("\n");
+  console.log(text);
 }
 
 
 // let's run it!
 
+// const M = [
+//   [1, 2, -1],
+//   [2, 4, -2],
+//   [3, 6, -3],
+//   [5, 10, -5]
+// ];
+// const dim = 1;
+
 const M = [
-  [1, 2, -1],
-  [2, 4, -2],
-  [3, 6, -3],
+  [NaN, 2, -1],
+  [2, 4, NaN],
+  [3, NaN, -3],
   [5, 10, -5]
 ];
-const triplets = matrixToTriples(M);
-
 const dim = 1;
+
+const triplets = matrixToTriples(M);
 const U = createRandomMatrix(M.length, dim);
 const V = createRandomMatrix(M[0].length, dim);
 
