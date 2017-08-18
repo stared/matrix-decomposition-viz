@@ -122,15 +122,26 @@ function matPrint(M, name="", prec=2, len=7) {
 // ];
 // const dim = 1;
 
+// const M = [
+//   [5, 4, 5, 2, 1, 1],
+//   [4, 5, 5, 1, 1, 2],
+//   [2, 2, 1, 4, 5, 5],
+//   [1, 1, 1, 5, 4, 4],
+//   [1, 2, 2, 2, 1, 1]
+// ];
+// const dim = 2;
+// // dim 1 -> 0.278 RMSE, 2 -> 0.074 RMSE
+
+
 const M = [
-  [5, 4, 5, 2, 1, 1],
-  [4, 5, 5, 1, 1, 2],
-  [2, 2, 1, 4, 5, 5],
-  [1, 1, 1, 5, 4, 4],
-  [1, 2, 2, 2, 1, 1]
+  [5, NaN, 5, 2, 1, 1],
+  [4, 5, 5, 1, NaN, 2],
+  [2, 2, NaN, 4, 5, 5],
+  [NaN, 1, 1, 5, 4, NaN],
+  [1, NaN, 2, 2, 1, 1]
 ];
 const dim = 2;
-// dim 1 -> 0.278 RMSE, 2 -> 0.074 RMSE
+// dim 1 -> 0.291, 2 -> <0.085 RMSE
 
 const triplets = matrixToTriples(M);
 const U = createRandomMatrix(M.length, dim);
