@@ -1,17 +1,3 @@
-
-// (v * u - y)**2
-// dv = 2 * (v * u - y) * u
-// du = 2 * (v * u - y) * v
-
-const M = [
-  [1, 2, -1],
-  [2, 4, -2],
-  [3, 6, -3],
-  [5, 10, -5]
-];
-
-// M[i, j] = U[i] * V[j]
-
 function createZeroMatrix(n, m) {
   const M = [];
   for(let i = 0; i < n; i++) {
@@ -33,8 +19,6 @@ function createRandomMatrix(n, m) {
   }
   return M;
 }
-
-// console.log("createZeroMatrix(4,2)", createZeroMatrix(4,2));
 
 function dot(u, v) {
   let res = 0;
@@ -63,9 +47,6 @@ function matrixToTriples(M) {
   return triples;
 }
 
-const triplets = matrixToTriples(M);
-// console.log("matrixToTriples(M)", matrixToTriples(M));
-
 function reconstructMatrix(U, V) {
   const M = [];
   for (let i = 0; i < U.length; i++) {
@@ -77,13 +58,6 @@ function reconstructMatrix(U, V) {
   }
   return M;
 }
-
-const dim = 1;
-const U = createRandomMatrix(M.length, dim);
-const V = createRandomMatrix(M[0].length, dim);
-
-// console.log("dot([1, 3], [-2, 5]", dot([1, 3], [-2, 5]));
-
 
 function gradDescStep(triplets, U, V, lr) {
 
@@ -111,20 +85,35 @@ function cost(triplets, U, V) {
   return res;
 }
 
-
-for (let step = 0; step < 100; step++) {
-  // warning: it is super-easy to overshot learnin rate
-  gradDescStep(triplets, U, V, 0.005);
-  if (step % 10 === 0) {
-    console.log(`loss (${step}): ${cost(triplets, U, V)}`);
-  }
-}
-
 function matPrint(M, name="") {
   if(name) {
     console.log(name);
   }
   console.log(M.map((row) =>  row.map((value) => value.toFixed(2)).join("  ")).join("\n"));
+}
+
+
+// let's run it!
+
+const M = [
+  [1, 2, -1],
+  [2, 4, -2],
+  [3, 6, -3],
+  [5, 10, -5]
+];
+const triplets = matrixToTriples(M);
+
+const dim = 1;
+const U = createRandomMatrix(M.length, dim);
+const V = createRandomMatrix(M[0].length, dim);
+
+
+for (let step = 0; step < 100; step++) {
+  // warning: it is super-easy to overshot learning rate
+  gradDescStep(triplets, U, V, 0.005);
+  if (step % 10 === 0) {
+    console.log(`loss (${step}): ${cost(triplets, U, V)}`);
+  }
 }
 
 matPrint(U, "U");
