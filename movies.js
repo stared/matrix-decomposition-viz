@@ -5,12 +5,12 @@ const svg = d3.select("body").append("svg")
   .attr("height", 800);
 
 const gMatrix = svg.append("g")
-  .attr("transform", "translate(150, 150)");
+  .attr("transform", "translate(120, 170)");
 
 const gApprox = svg.append("g")
-  .attr("transform", "translate(600, 150)");
+  .attr("transform", "translate(530, 170)");
 
-function draw_matrix(g, triplets) {
+function draw_matrix(g, triplets, rowLabels=[], columnLabels=[]) {
 
   const color = d3.scaleLinear()
     .domain([0.5, 5.5])
@@ -36,9 +36,33 @@ function draw_matrix(g, triplets) {
     .style("fill", "#fff")
     .text((d) => d[2].toFixed(1));
 
+  g.selectAll('.label-row').data(rowLabels)
+    .enter().append("text")
+    .attr("class", "label-row")
+    .attr("x", -a/4)
+    .attr("y", (d, i) => (i + 0.7) * a)
+    .attr("font-family", "Verdana")
+    .attr("font-size", 16)
+    .style("text-anchor", "end")
+    .style("fill", "#000")
+    .text((d) => d);
+
+  g.selectAll('.label-column').data(columnLabels)
+    .enter().append("text")
+    .attr("class", "label-column")
+    .attr("transform", (d, i) => `translate(${(i + 0.7) * a}, ${-a/4}) rotate(-90)`)
+    .attr("font-family", "Verdana")
+    .attr("font-size", 16)
+    .style("text-anchor", "start")
+    .style("fill", "#000")
+    .text((d) => d);
+
+
 }
 
-
+const people = ["Zosia", "Damian", "Marta", "Dorota", "Paweł"];
+const movies = ["Matrix", "Matrix: Reloaded", "Inception",
+                "Twilight", "Hunger Games", "50 Shades of Grey"];
 const M = [
   [5, NaN, 5, 2, 1, 1],
   [4, 3, 5, 1, NaN, 2],
@@ -53,7 +77,7 @@ const triplets = matrixToTriples(M);
 const U = createRandomMatrix(M.length, dim);
 const V = createRandomMatrix(M[0].length, dim);
 
-draw_matrix(gMatrix, triplets);
+draw_matrix(gMatrix, triplets, rowLabels=people, columnLabels=movies);
 
 for (let step = 0; step < 100; step++) {
   // warning: it is super-easy to overshot learning rate
@@ -63,5 +87,7 @@ for (let step = 0; step < 100; step++) {
   }
 }
 
-const triplets2 = matrixToTriples(reconstructMatrix(U, V));
-draw_matrix(gApprox, triplets2);
+svg.on("click", () => {
+  const triplets2 = matrixToTriples(reconstructMatrix(U, V));
+  draw_matrix(gApprox, triplets2, rowLabels=[], columnLabels=movies);
+})
