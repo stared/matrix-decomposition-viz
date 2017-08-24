@@ -1,11 +1,14 @@
 const a = 60;
 
 const svg = d3.select("body").append("svg")
-  .attr("width", 800)
+  .attr("width", 1200)
   .attr("height", 800);
 
 const gMatrix = svg.append("g")
   .attr("transform", "translate(150, 150)");
+
+const gApprox = svg.append("g")
+  .attr("transform", "translate(600, 150)");
 
 function draw_matrix(g, triplets) {
 
@@ -17,7 +20,7 @@ function draw_matrix(g, triplets) {
 
   const cellEnter = cell.enter().append('g')
     .attr("class", "cell")
-    .attr("transform", (d) => `translate(${a * d[0]}, ${a * d[1]})`);
+    .attr("transform", (d) => `translate(${a * d[1]}, ${a * d[0]})`);
 
   cellEnter.append("rect")
     .attr("width", a)
@@ -38,7 +41,7 @@ function draw_matrix(g, triplets) {
 
 const M = [
   [5, NaN, 5, 2, 1, 1],
-  [4, 5, 5, 1, NaN, 2],
+  [4, 3, 5, 1, NaN, 2],
   [2, 2, NaN, 4, 5, 5],
   [NaN, 1, 1, 5, 4, NaN],
   [1, NaN, 2, 2, 1, 1]
@@ -61,3 +64,4 @@ for (let step = 0; step < 100; step++) {
 }
 
 const triplets2 = matrixToTriples(reconstructMatrix(U, V));
+draw_matrix(gApprox, triplets2);
