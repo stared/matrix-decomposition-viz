@@ -9,6 +9,6 @@ M[i, j] = U[i] * V[j]
 
 ## Todo
 
+* normalize cost function wrt batch size
 * biases
-* sigmoid and log loss
 * regularization

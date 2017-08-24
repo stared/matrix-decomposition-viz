@@ -63,6 +63,8 @@ function reconstructMatrix(U, V) {
   return M;
 }
 
+// linear
+
 function gradDescStep(triplets, U, V, lr) {
 
   const dU = createZeroMatrix(U.length, U[0].length);
@@ -88,6 +90,52 @@ function costRMSE(triplets, U, V) {
   });
   return Math.sqrt(res) / triplets.length;
 }
+
+// logistic
+
+function sigmoid(z) {
+  return 1 / (1 + Math.exp(-z));
+}
+
+function gradDescStepLogistic(triplets, U, V, lr) {
+
+  const dU = createZeroMatrix(U.length, U[0].length);
+  const dV = createZeroMatrix(V.length, V[0].length);
+
+  triplets.forEach((triplet) => {
+    const [i, j, value] = triplet;
+    const a = - lr * (sigmoid(dot(U[i], V[j])) - value);
+    vecAddInPlace(dU[i], vecMul(V[j], a));
+    vecAddInPlace(dV[j], vecMul(U[i], a));
+  });
+
+  matAddInPlace(U, dU);
+  matAddInPlace(V, dV);
+}
+
+
+function costLogLoss(triplets, U, V) {
+  let res = 0;
+  triplets.forEach((triplet) => {
+    const [i, j, value] = triplet;
+    const z = dot(U[i], V[j]);
+    res += - value * z + Math.log(1 + Math.exp(z));
+  });
+  return res / triplets.length;
+}
+
+function reconstructMatrixLogistic(U, V) {
+  const M = [];
+  for (let i = 0; i < U.length; i++) {
+    const row = [];
+    for (let j = 0; j < V.length; j++) {
+      row.push(sigmoid(dot(U[i], V[j])));
+    }
+    M.push(row);
+  }
+  return M;
+}
+
 
 function matPrint(M, name="", prec=2, len=7) {
   if(name) {
@@ -133,15 +181,44 @@ function matPrint(M, name="", prec=2, len=7) {
 // // dim 1 -> 0.278 RMSE, 2 -> 0.074 RMSE
 
 
+// const M = [
+//   [5, NaN, 5, 2, 1, 1],
+//   [4, 5, 5, 1, NaN, 2],
+//   [2, 2, NaN, 4, 5, 5],
+//   [NaN, 1, 1, 5, 4, NaN],
+//   [1, NaN, 2, 2, 1, 1]
+// ];
+// const dim = 2;
+// // dim 1 -> 0.291, 2 -> <0.085 RMSE
+//
+// const triplets = matrixToTriples(M);
+// const U = createRandomMatrix(M.length, dim);
+// const V = createRandomMatrix(M[0].length, dim);
+//
+//
+// for (let step = 0; step < 100; step++) {
+//   // warning: it is super-easy to overshot learning rate
+//   gradDescStep(triplets, U, V, 0.005);
+//   if (step % 10 === 0) {
+//     console.log(`loss (${step}): ${costRMSE(triplets, U, V)}`);
+//   }
+// }
+//
+// matPrint(U, "U");
+// matPrint(V, "V");
+// matPrint(reconstructMatrix(U, V), "M reconstructed");
+// matPrint(M, "M ground truth");
+
+// logistic example
+
 const M = [
-  [5, NaN, 5, 2, 1, 1],
-  [4, 5, 5, 1, NaN, 2],
-  [2, 2, NaN, 4, 5, 5],
-  [NaN, 1, 1, 5, 4, NaN],
-  [1, NaN, 2, 2, 1, 1]
+  [1.0, 0.5, 0.5, 0.0],
+  [1.0, 0.9, 0.8, 0.4],
+  [0.5, 0.2, 0.2, 0.0],
+  [0.8, 1.0, 0.5, 0.1]
 ];
-const dim = 2;
-// dim 1 -> 0.291, 2 -> <0.085 RMSE
+const dim = 3;
+// log loss: dim=1 0.522, dim=2 0.407, dim=3 0.381 (ideal fit)
 
 const triplets = matrixToTriples(M);
 const U = createRandomMatrix(M.length, dim);
@@ -150,13 +227,13 @@ const V = createRandomMatrix(M[0].length, dim);
 
 for (let step = 0; step < 100; step++) {
   // warning: it is super-easy to overshot learning rate
-  gradDescStep(triplets, U, V, 0.005);
+  gradDescStepLogistic(triplets, U, V, 0.5);
   if (step % 10 === 0) {
-    console.log(`loss (${step}): ${costRMSE(triplets, U, V)}`);
+    console.log(`loss (${step}): ${costLogLoss(triplets, U, V)}`);
   }
 }
 
 matPrint(U, "U");
 matPrint(V, "V");
-matPrint(reconstructMatrix(U, V), "M reconstructed");
+matPrint(reconstructMatrixLogistic(U, V), "M reconstructed");
 matPrint(M, "M ground truth");
