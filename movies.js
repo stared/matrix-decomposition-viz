@@ -60,13 +60,13 @@ function draw_matrix(g, triplets, rowLabels=[], columnLabels=[]) {
 
 }
 
-const people = ["Zosia", "Damian", "Marta", "Dorota", "Paweł"];
+const people = ["Gosia", "Damian", "Dorota", "Marta", "Paweł"];
 const movies = ["Matrix", "Matrix: Reloaded", "Inception",
                 "Twilight", "Hunger Games", "50 Shades of Grey"];
 const M = [
   [5, NaN, 5, 2, 1, 1],
   [4, 3, 5, 1, NaN, 2],
-  [2, 2, NaN, 4, 5, 5],
+  [3, 2, NaN, 4, 5, 5],
   [NaN, 1, 1, 5, 4, NaN],
   [1, NaN, 2, 2, 1, 1]
 ];
@@ -79,15 +79,15 @@ const V = createRandomMatrix(M[0].length, dim);
 
 draw_matrix(gMatrix, triplets, rowLabels=people, columnLabels=movies);
 
-for (let step = 0; step < 100; step++) {
-  // warning: it is super-easy to overshot learning rate
-  gradDescStep(triplets, U, V, 0.005);
-  if (step % 10 === 0) {
-    console.log(`loss (${step}): ${costRMSE(triplets, U, V)}`);
-  }
-}
 
 svg.on("click", () => {
+  for (let step = 0; step < 200; step++) {
+    // warning: it is super-easy to overshot learning rate
+    gradDescStep(triplets, U, V, 0.005);
+    if (step % 10 === 0) {
+      console.log(`loss (${step}): ${costRMSE(triplets, U, V)}`);
+    }
+  }
   const triplets2 = matrixToTriples(reconstructMatrix(U, V));
   draw_matrix(gApprox, triplets2, rowLabels=[], columnLabels=movies);
 })
