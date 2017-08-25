@@ -74,20 +74,25 @@ const M = [
 const triplets = matrixToTriples(M);
 draw_matrix(gMatrix, triplets, rowLabels=people, columnLabels=movies);
 
-// when the input range changes update value
-d3.select("#nValue").on("input", function() {
-  const dim = +this.value;
+d3.select("#dimValue").on("input", update);
+d3.select("#stepsValue").on("input", update);
+d3.select("#lrValue").on("input", update);
+
+function update() {
+  const dim = +d3.select("#dimValue").property("value");
+  const steps = +d3.select("#stepsValue").property("value");
+  const lr = +d3.select("#lrValue").property("value");
+
   const U = createRandomMatrix(M.length, dim);
   const V = createRandomMatrix(M[0].length, dim);
   gApprox.selectAll("*").remove();
-  for (let step = 0; step < 200; step++) {
+  for (let step = 0; step < steps; step++) {
     // warning: it is super-easy to overshot learning rate
-    gradDescStep(triplets, U, V, 0.005);
+    gradDescStep(triplets, U, V, lr);
     if (step % 10 === 0) {
       console.log(`loss (${step}): ${costRMSE(triplets, U, V)}`);
     }
   }
   const triplets2 = matrixToTriples(reconstructMatrix(U, V));
   draw_matrix(gApprox, triplets2, rowLabels=[], columnLabels=movies);
-})
-;
+}
