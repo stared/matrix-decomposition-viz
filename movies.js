@@ -70,17 +70,16 @@ const M = [
   [NaN, 1, 1, 5, 4, NaN],
   [1, NaN, 2, 2, 1, 1]
 ];
-const dim = 2;
-
 
 const triplets = matrixToTriples(M);
-const U = createRandomMatrix(M.length, dim);
-const V = createRandomMatrix(M[0].length, dim);
-
 draw_matrix(gMatrix, triplets, rowLabels=people, columnLabels=movies);
 
-
-svg.on("click", () => {
+// when the input range changes update value
+d3.select("#nValue").on("input", function() {
+  const dim = +this.value;
+  const U = createRandomMatrix(M.length, dim);
+  const V = createRandomMatrix(M[0].length, dim);
+  gApprox.selectAll("*").remove();
   for (let step = 0; step < 200; step++) {
     // warning: it is super-easy to overshot learning rate
     gradDescStep(triplets, U, V, 0.005);
@@ -91,3 +90,4 @@ svg.on("click", () => {
   const triplets2 = matrixToTriples(reconstructMatrix(U, V));
   draw_matrix(gApprox, triplets2, rowLabels=[], columnLabels=movies);
 })
+;
