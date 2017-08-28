@@ -79,12 +79,13 @@ function gradDescStep(triplets, U, V, lr, logistic=false, l1=0, l2=0) {
 
   const dU = createZeroMatrix(U.length, U[0].length);
   const dV = createZeroMatrix(V.length, V[0].length);
-
+  const n = triplets.length;
+  
   triplets.forEach((triplet) => {
     const [i, j, value] = triplet;
     const a = logistic ?
-      - lr * (sigmoid(dot(U[i], V[j])) - value) :
-      - lr * 2 * (dot(U[i], V[j]) - value);
+      - lr * (sigmoid(dot(U[i], V[j])) - value) / n :
+      - lr * 2 * (dot(U[i], V[j]) - value) / n;
     vecAddInPlace(dU[i], vecMul(V[j], a));
     vecAddInPlace(dV[j], vecMul(U[i], a));
   });

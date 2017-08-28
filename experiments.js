@@ -74,7 +74,7 @@ const V = createRandomMatrix(M[0].length, dim);
 
 for (let step = 0; step < 100; step++) {
   // warning: it is super-easy to overshot learning rate
-  gradDescStep(triplets, U, V, 0.05, logistic=true);
+  gradDescStep(triplets, U, V, 1., logistic=true);
   if (step % 10 === 0) {
     console.log(`loss (${step}): ${costLogLoss(triplets, U, V)}`);
   }
