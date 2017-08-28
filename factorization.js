@@ -41,8 +41,8 @@ function matAddInPlace(V, U) {
   U.forEach((row, i) => row.forEach((value, j) => V[i][j] += value));
 }
 
-function matScaleInPlace(V, a, b) {
-  V.forEach((row, i) => row.forEach((value, j) => V[i][j] = a * value + b));
+function matRegularizeInPlace(V, l1lr, l2lr) {
+  V.forEach((row, i) => row.forEach((value, j) => V[i][j] -= l2lr * value + l1lr * Math.sign(value)));
 }
 
 function matrixToTriples(M) {
@@ -80,7 +80,7 @@ function gradDescStep(triplets, U, V, lr, logistic=false, l1=0, l2=0) {
   const dU = createZeroMatrix(U.length, U[0].length);
   const dV = createZeroMatrix(V.length, V[0].length);
   const n = triplets.length;
-  
+
   triplets.forEach((triplet) => {
     const [i, j, value] = triplet;
     const a = logistic ?
@@ -91,8 +91,8 @@ function gradDescStep(triplets, U, V, lr, logistic=false, l1=0, l2=0) {
   });
 
   // regularization
-  matScaleInPlace(U, (1. - lr * l2), -lr * l1);
-  matScaleInPlace(V, (1. - lr * l2), -lr * l1);
+  matRegularizeInPlace(U, lr * l2, lr * l1);
+  matRegularizeInPlace(V, lr * l2, lr * l1);
 
   // applying gradient
   matAddInPlace(U, dU);
