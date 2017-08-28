@@ -71,6 +71,24 @@ function reconstructMatrix(U, V, transform=false) {
   return M;
 }
 
+function covariance(U) {
+  const M = [];
+  const dim = U[0].length;
+  const n = U.length;
+  for (let i = 0; i < dim; i++) {
+    const row = [];
+    for (let j = 0; j < dim; j++) {
+      let res = 0;
+      for (let k = 0; k < n; k++) {
+        res += U[k][i] * U[k][j];
+      }
+      row.push(res);
+    }
+    M.push(row);
+  }
+  return M;
+}
+
 function sigmoid(z) {
   return 1 / (1 + Math.exp(-z));
 }

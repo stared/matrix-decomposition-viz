@@ -109,4 +109,7 @@ function update() {
   draw_matrix(gApprox, triplets2, rowLabels=[], columnLabels=movies);
   draw_matrix(gUsers, matrixToTriples(U), rowLabels=users, columnLabels=[]);
   draw_matrix(gMovies, matrixToTriples(V), rowLabels=movies, columnLabels=[]);
+
+  matPrint(covariance(U), "users covariance");
+  matPrint(covariance(V), "movies covariance");
 }
