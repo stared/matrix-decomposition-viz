@@ -41,6 +41,10 @@ function matAddInPlace(V, U) {
   U.forEach((row, i) => row.forEach((value, j) => V[i][j] += value));
 }
 
+function matScaleInPlace(V, a, b) {
+  V.forEach((row, i) => row.forEach((value, j) => V[i][j] = a * value + b));
+}
+
 function matrixToTriples(M) {
   const triples = [];
   M.forEach((row, i) =>
@@ -51,36 +55,48 @@ function matrixToTriples(M) {
   return triples;
 }
 
-function reconstructMatrix(U, V) {
+function reconstructMatrix(U, V, transform=false) {
   const M = [];
   for (let i = 0; i < U.length; i++) {
     const row = [];
     for (let j = 0; j < V.length; j++) {
-      row.push(dot(U[i], V[j]));
+      if (transform) {
+        row.push(transform(dot(U[i], V[j])));
+      } else {
+        row.push(dot(U[i], V[j]));
+      }
     }
     M.push(row);
   }
   return M;
 }
 
-// linear
+function sigmoid(z) {
+  return 1 / (1 + Math.exp(-z));
+}
 
-function gradDescStep(triplets, U, V, lr) {
+function gradDescStep(triplets, U, V, lr, logistic=false, l1=0, l2=0) {
 
   const dU = createZeroMatrix(U.length, U[0].length);
   const dV = createZeroMatrix(V.length, V[0].length);
 
   triplets.forEach((triplet) => {
     const [i, j, value] = triplet;
-    const a = - lr * 2 * (dot(U[i], V[j]) - value);
+    const a = logistic ?
+      - lr * (sigmoid(dot(U[i], V[j])) - value) :
+      - lr * 2 * (dot(U[i], V[j]) - value);
     vecAddInPlace(dU[i], vecMul(V[j], a));
     vecAddInPlace(dV[j], vecMul(U[i], a));
   });
 
+  // regularization
+  matScaleInPlace(U, (1. - lr * l2), -lr * l1);
+  matScaleInPlace(V, (1. - lr * l2), -lr * l1);
+
+  // applying gradient
   matAddInPlace(U, dU);
   matAddInPlace(V, dV);
 }
-
 
 function costRMSE(triplets, U, V) {
   let res = 0;
@@ -91,29 +107,6 @@ function costRMSE(triplets, U, V) {
   return Math.sqrt(res) / triplets.length;
 }
 
-// logistic
-
-function sigmoid(z) {
-  return 1 / (1 + Math.exp(-z));
-}
-
-function gradDescStepLogistic(triplets, U, V, lr) {
-
-  const dU = createZeroMatrix(U.length, U[0].length);
-  const dV = createZeroMatrix(V.length, V[0].length);
-
-  triplets.forEach((triplet) => {
-    const [i, j, value] = triplet;
-    const a = - lr * (sigmoid(dot(U[i], V[j])) - value);
-    vecAddInPlace(dU[i], vecMul(V[j], a));
-    vecAddInPlace(dV[j], vecMul(U[i], a));
-  });
-
-  matAddInPlace(U, dU);
-  matAddInPlace(V, dV);
-}
-
-
 function costLogLoss(triplets, U, V) {
   let res = 0;
   triplets.forEach((triplet) => {
@@ -123,19 +116,6 @@ function costLogLoss(triplets, U, V) {
   });
   return res / triplets.length;
 }
-
-function reconstructMatrixLogistic(U, V) {
-  const M = [];
-  for (let i = 0; i < U.length; i++) {
-    const row = [];
-    for (let j = 0; j < V.length; j++) {
-      row.push(sigmoid(dot(U[i], V[j])));
-    }
-    M.push(row);
-  }
-  return M;
-}
-
 
 function matPrint(M, name="", prec=2, len=7) {
   if(name) {

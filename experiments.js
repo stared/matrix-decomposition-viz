@@ -64,7 +64,7 @@ const M = [
   [0.5, 0.2, 0.2, 0.0],
   [0.8, 1.0, 0.5, 0.1]
 ];
-const dim = 3;
+const dim = 2;
 // log loss: dim=1 0.522, dim=2 0.407, dim=3 0.381 (ideal fit)
 
 const triplets = matrixToTriples(M);
@@ -74,7 +74,7 @@ const V = createRandomMatrix(M[0].length, dim);
 
 for (let step = 0; step < 100; step++) {
   // warning: it is super-easy to overshot learning rate
-  gradDescStepLogistic(triplets, U, V, 0.5);
+  gradDescStep(triplets, U, V, 0.05, logistic=true);
   if (step % 10 === 0) {
     console.log(`loss (${step}): ${costLogLoss(triplets, U, V)}`);
   }
@@ -82,5 +82,5 @@ for (let step = 0; step < 100; step++) {
 
 matPrint(U, "U");
 matPrint(V, "V");
-matPrint(reconstructMatrixLogistic(U, V), "M reconstructed");
+matPrint(reconstructMatrix(U, V, sigmoid), "M reconstructed");
 matPrint(M, "M ground truth");
