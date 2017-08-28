@@ -2,13 +2,19 @@ const a = 60;
 
 const svg = d3.select("body").append("svg")
   .attr("width", 1200)
-  .attr("height", 800);
+  .attr("height", 1200);
 
 const gMatrix = svg.append("g")
   .attr("transform", "translate(120, 170)");
 
 const gApprox = svg.append("g")
   .attr("transform", "translate(530, 170)");
+
+const gUsers = svg.append("g")
+  .attr("transform", "translate(120, 550)");
+
+const gMovies = svg.append("g")
+  .attr("transform", "translate(530, 550)");
 
 function draw_matrix(g, triplets, rowLabels=[], columnLabels=[]) {
 
@@ -60,7 +66,7 @@ function draw_matrix(g, triplets, rowLabels=[], columnLabels=[]) {
 
 }
 
-const people = ["Gosia", "Damian", "Dorota", "Marta", "Paweł"];
+const users = ["Gosia", "Damian", "Dorota", "Marta", "Paweł"];
 const movies = ["Matrix", "Matrix: Reloaded", "Inception",
                 "Twilight", "Hunger Games", "50 Shades of Grey"];
 const M = [
@@ -72,7 +78,7 @@ const M = [
 ];
 
 const triplets = matrixToTriples(M);
-draw_matrix(gMatrix, triplets, rowLabels=people, columnLabels=movies);
+draw_matrix(gMatrix, triplets, rowLabels=users, columnLabels=movies);
 
 d3.select("#dimValue").on("input", update);
 d3.select("#stepsValue").on("input", update);
@@ -90,6 +96,8 @@ function update() {
   const U = createRandomMatrix(M.length, dim);
   const V = createRandomMatrix(M[0].length, dim);
   gApprox.selectAll("*").remove();
+  gUsers.selectAll("*").remove();
+  gMovies.selectAll("*").remove();
   for (let step = 0; step < steps; step++) {
     // warning: it is super-easy to overshot learning rate
     gradDescStep(triplets, U, V, lr, logistic=false, l1, l2);
@@ -99,4 +107,6 @@ function update() {
   }
   const triplets2 = matrixToTriples(reconstructMatrix(U, V));
   draw_matrix(gApprox, triplets2, rowLabels=[], columnLabels=movies);
+  draw_matrix(gUsers, matrixToTriples(U), rowLabels=users, columnLabels=[]);
+  draw_matrix(gMovies, matrixToTriples(V), rowLabels=movies, columnLabels=[]);
 }
