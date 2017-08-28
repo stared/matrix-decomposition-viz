@@ -9,6 +9,17 @@ M[i, j] = U[i] * V[j]
 
 ## Todo
 
-* normalize cost function wrt batch size
-* biases
-* regularization
+* simulation
+  * biases
+  * cross-validation
+* visualization
+  * vectors
+  * comparison
+  * animation
+  * more controls?
+  * editibility
+* examples
+  * weather
+  * movies
+  * grades
+  * likes
