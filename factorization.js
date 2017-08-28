@@ -93,7 +93,7 @@ function sigmoid(z) {
   return 1 / (1 + Math.exp(-z));
 }
 
-function gradDescStep(triplets, U, V, lr, logistic=false, l1=0, l2=0) {
+function gradDescStep(triplets, U, V, lr, logistic=false, l1=0, l2=0, biases=false) {
 
   const dU = createZeroMatrix(U.length, U[0].length);
   const dV = createZeroMatrix(V.length, V[0].length);
@@ -115,6 +115,13 @@ function gradDescStep(triplets, U, V, lr, logistic=false, l1=0, l2=0) {
   // applying gradient
   matAddInPlace(U, dU);
   matAddInPlace(V, dV);
+
+  // biases
+  if (biases) {
+    U.forEach((row) => row[0] = 1);
+    V.forEach((row) => row[1] = 1);
+  }
+
 }
 
 function costRMSE(triplets, U, V) {

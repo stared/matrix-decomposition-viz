@@ -10,10 +10,8 @@ M[i, j] = U[i] * V[j]
 ## Todo
 
 * simulation
-  * biases
   * cross-validation
 * visualization
-  * vectors
   * comparison
   * animation
   * more controls?

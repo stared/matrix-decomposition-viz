@@ -81,6 +81,7 @@ const triplets = matrixToTriples(M);
 draw_matrix(gMatrix, triplets, rowLabels=users, columnLabels=movies);
 
 d3.select("#dimValue").on("input", update);
+d3.select("#biasesValue").on("input", update);
 d3.select("#stepsValue").on("input", update);
 d3.select("#lrValue").on("input", update);
 d3.select("#l1Value").on("input", update);
@@ -88,19 +89,20 @@ d3.select("#l2Value").on("input", update);
 
 function update() {
   const dim = +d3.select("#dimValue").property("value");
+  const biases = d3.select("#biasesValue").property("checked");
   const steps = +d3.select("#stepsValue").property("value");
   const lr = +d3.select("#lrValue").property("value");
   const l1 = +d3.select("#l1Value").property("value");
   const l2 = +d3.select("#l2Value").property("value");
 
-  const U = createRandomMatrix(M.length, dim);
-  const V = createRandomMatrix(M[0].length, dim);
+  const U = createRandomMatrix(M.length, dim + 2 * biases);
+  const V = createRandomMatrix(M[0].length, dim + 2 * biases);
   gApprox.selectAll("*").remove();
   gUsers.selectAll("*").remove();
   gMovies.selectAll("*").remove();
   for (let step = 0; step < steps; step++) {
     // warning: it is super-easy to overshot learning rate
-    gradDescStep(triplets, U, V, lr, logistic=false, l1, l2);
+    gradDescStep(triplets, U, V, lr, logistic=false, l1, l2, biases);
     if (step % 10 === 0) {
       console.log(`loss (${step}): ${costRMSE(triplets, U, V)}`);
     }
