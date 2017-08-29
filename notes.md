@@ -11,13 +11,13 @@ M[i, j] = U[i] * V[j]
 
 * simulation
   * cross-validation
+  * noise-contrastive estimation / negative sampling
 * visualization
   * comparison
   * animation
   * more controls?
   * editibility
 * examples
-  * weather
-  * movies
+  * movies better
   * grades
   * likes
