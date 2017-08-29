@@ -93,7 +93,8 @@ function sigmoid(z) {
   return 1 / (1 + Math.exp(-z));
 }
 
-function gradDescStep(triplets, U, V, lr, logistic=false, l1=0, l2=0, biases=false) {
+function gradDescStep(triplets, U, V, lr, logistic=false, l1=0, l2=0,
+                      biasesRow=false, biasesCol=false) {
 
   const dU = createZeroMatrix(U.length, U[0].length);
   const dV = createZeroMatrix(V.length, V[0].length);
@@ -117,9 +118,12 @@ function gradDescStep(triplets, U, V, lr, logistic=false, l1=0, l2=0, biases=fal
   matAddInPlace(V, dV);
 
   // biases
-  if (biases) {
+  if (biasesCol) {
     U.forEach((row) => row[0] = 1);
-    V.forEach((row) => row[1] = 1);
+  }
+  if (biasesRow) {
+    const ind = biasesCol | 0;
+    V.forEach((row) => row[ind] = 1);
   }
 
 }
