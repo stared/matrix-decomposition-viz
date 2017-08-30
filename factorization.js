@@ -41,8 +41,12 @@ function matAddInPlace(V, U) {
   U.forEach((row, i) => row.forEach((value, j) => V[i][j] += value));
 }
 
-function matRegularizeInPlace(V, l1lr, l2lr) {
-  V.forEach((row, i) => row.forEach((value, j) => V[i][j] -= l2lr * value + l1lr * Math.sign(value)));
+function matRegularizeInPlace(V, l1lr, l2lr, leaveColumns=0) {
+  V.forEach((row, i) => row.forEach((value, j) => {
+    if (j >= leaveColumns) {
+      V[i][j] -= l2lr * value + l1lr * Math.sign(value);
+    }
+  }));
 }
 
 function matrixToTriples(M) {
@@ -110,8 +114,9 @@ function gradDescStep(triplets, U, V, lr, logistic=false, l1=0, l2=0,
   });
 
   // regularization
-  matRegularizeInPlace(U, lr * l2, lr * l1);
-  matRegularizeInPlace(V, lr * l2, lr * l1);
+  // (here biases without regularization)
+  matRegularizeInPlace(U, lr * l1, lr * l2, biasesRow + biasesCol);
+  matRegularizeInPlace(V, lr * l1, lr * l2, biasesRow + biasesCol);
 
   // applying gradient
   matAddInPlace(U, dU);
