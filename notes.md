@@ -10,6 +10,7 @@ M[i, j] = U[i] * V[j]
 ## Todo
 
 * simulation
+  * add constant term?
   * different regularization parameter for biases
   * cross-validation
   * noise-contrastive estimation / negative sampling

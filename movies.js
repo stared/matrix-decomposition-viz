@@ -134,21 +134,23 @@ function update() {
 
   const U = createRandomMatrix(M.length, dim + biasesRow + biasesCol);
   const V = createRandomMatrix(M[0].length, dim + biasesRow + biasesCol);
+  const mu = meanT(triplets);
+  console.log("mu", mu);
   gApprox.selectAll("*").remove();
   gUsers.selectAll("*").remove();
   gMovies.selectAll("*").remove();
   for (let step = 0; step < steps; step++) {
     // warning: it is super-easy to overshot learning rate
-    gradDescStep(triplets, U, V, lr, logistic=false, l1, l2, biasesRow, biasesCol);
+    gradDescStep(triplets, U, V, lr, logistic=false, l1, l2, biasesRow, biasesCol, mean=mu);
     if (step % 10 === 0) {
       console.log(`loss (${step}): ${costRMSE(triplets, U, V)}`);
     }
   }
-  const triplets2 = matrixToTriples(reconstructMatrix(U, V));
+  const triplets2 = matrixToTriples(reconstructMatrix(U, V, false, mu));
   draw_matrix(gApprox, triplets2, rowLabels=[], columnLabels=movies);
   draw_matrix(gUsers, matrixToTriples(U), rowLabels=users, columnLabels=[]);
   draw_matrix(gMovies, matrixToTriples(V), rowLabels=movies, columnLabels=[]);
 
-  matPrint(covariance(U), "users covariance");
-  matPrint(covariance(V), "movies covariance");
+  // matPrint(covariance(U), "users covariance");
+  // matPrint(covariance(V), "movies covariance");
 }

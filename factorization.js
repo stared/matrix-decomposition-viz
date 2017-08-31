@@ -59,15 +59,15 @@ function matrixToTriples(M) {
   return triples;
 }
 
-function reconstructMatrix(U, V, transform=false) {
+function reconstructMatrix(U, V, transform=false, mean=0) {
   const M = [];
   for (let i = 0; i < U.length; i++) {
     const row = [];
     for (let j = 0; j < V.length; j++) {
       if (transform) {
-        row.push(transform(dot(U[i], V[j])));
+        row.push(transform(dot(U[i], V[j]) + mean));
       } else {
-        row.push(dot(U[i], V[j]));
+        row.push(dot(U[i], V[j]) + mean);
       }
     }
     M.push(row);
@@ -98,7 +98,7 @@ function sigmoid(z) {
 }
 
 function gradDescStep(triplets, U, V, lr, logistic=false, l1=0, l2=0,
-                      biasesRow=false, biasesCol=false) {
+                      biasesRow=false, biasesCol=false, mean=0) {
 
   const dU = createZeroMatrix(U.length, U[0].length);
   const dV = createZeroMatrix(V.length, V[0].length);
@@ -107,8 +107,8 @@ function gradDescStep(triplets, U, V, lr, logistic=false, l1=0, l2=0,
   triplets.forEach((triplet) => {
     const [i, j, value] = triplet;
     const a = logistic ?
-      - lr * (sigmoid(dot(U[i], V[j])) - value) / n :
-      - lr * 2 * (dot(U[i], V[j]) - value) / n;
+      - lr * (sigmoid(dot(U[i], V[j])) + mean - value) / n :
+      - lr * 2 * (dot(U[i], V[j]) + mean - value) / n;
     vecAddInPlace(dU[i], vecMul(V[j], a));
     vecAddInPlace(dV[j], vecMul(U[i], a));
   });
@@ -148,6 +148,15 @@ function costLogLoss(triplets, U, V) {
     const [i, j, value] = triplet;
     const z = dot(U[i], V[j]);
     res += - value * z + Math.log(1 + Math.exp(z));
+  });
+  return res / triplets.length;
+}
+
+function meanT(triplets) {
+  let res = 0;
+  triplets.forEach((triplet) => {
+    const [i, j, value] = triplet;
+    res += value;
   });
   return res / triplets.length;
 }
