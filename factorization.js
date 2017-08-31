@@ -133,11 +133,11 @@ function gradDescStep(triplets, U, V, lr, logistic=false, l1=0, l2=0,
 
 }
 
-function costRMSE(triplets, U, V) {
+function costRMSE(triplets, U, V, mean=0) {
   let res = 0;
   triplets.forEach((triplet) => {
     const [i, j, value] = triplet;
-    res += Math.pow(dot(U[i], V[j]) - value, 2);
+    res += Math.pow(dot(U[i], V[j]) + mean - value, 2);
   });
   return Math.sqrt(res) / triplets.length;
 }
