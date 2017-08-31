@@ -143,7 +143,7 @@ function update() {
     // warning: it is super-easy to overshot learning rate
     gradDescStep(triplets, U, V, lr, logistic=false, l1, l2, biasesRow, biasesCol, mean=mu);
     if (step % 10 === 0) {
-      console.log(`loss (${step}): ${costRMSE(triplets, U, V)}`);
+      console.log(`loss (${step}): ${costRMSE(triplets, U, V, mu)}`);
     }
   }
   const triplets2 = matrixToTriples(reconstructMatrix(U, V, false, mu));
