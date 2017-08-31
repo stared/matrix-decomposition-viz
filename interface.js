@@ -3,41 +3,84 @@
 
 
 class Widget {
-  constructor(div) {
+  constructor(div, matrix, rowLabels=[], colLabels=[]) {
     this.div = div;
+
+    this.M = matrix;
+    this.triplets = matrixToTriples(this.M);
+    this.rowLabels = rowLabels;
+    this.colLabels = colLabels;
+
     this.controls = new Controls(div);
     this.controls.addRange("dim", "dimension", 0, 5, 1, 2);
-    this.controls.addCheckbox("rowBiases", "row biases");
-    this.controls.addCheckbox("colBiases", "column biases");
+    this.controls.addCheckbox("biasesRow", "row biases");
+    this.controls.addCheckbox("biasesCol", "column biases");
     this.controls.addRange("steps", "steps", 0, 500, 50, 200);
+    this.controls.addRange("lr", "learning rate", 0.01, 1, 0.01, 0.1);
+    this.controls.addRange("l1", "l1 regularization", 0.01, 1, 0.01, 0.0);
+    this.controls.addRange("l2", "l2 regularization", 0.01, 1, 0.01, 0.0);
+    this.controls.onUpdate = (params) => this.update(params);
+
 
     this.svg = div.append("svg")
       .attr("width", 1200)
       .attr("height", 1200);
 
-    this.originalMatrix = new MatrixTiles(this.svg);
-    this.originalMatrix.g.attr("transform", "translate(120, 170)");
+    this.originalMatrix = new MatrixTiles(this.svg, 30);
+    this.originalMatrix.g.attr("transform", "translate(370, 70)");
 
-    this.reconstructedMatrix = new MatrixTiles(this.svg);
-    this.reconstructedMatrix.g.attr("transform", "translate(530, 170)");
+    this.reconstructedMatrix = new MatrixTiles(this.svg, 30);
+    this.reconstructedMatrix.g.attr("transform", "translate(800, 70)");
 
-    this.rowVectors = new MatrixTiles(this.svg);
-    this.reconstructedMatrix.g.attr("transform", "translate(120, 550)");
+    this.rowVectors = new MatrixTiles(this.svg, 30);
+    this.rowVectors.g.attr("transform", "translate(800, 400)");
 
-    this.rowVectors = new MatrixTiles(this.svg);
-    this.reconstructedMatrix.g.attr("transform", "translate(530, 550)");
+    this.colVectors = new MatrixTiles(this.svg, 30);
+    this.colVectors.g.attr("transform", "translate(1050, 400)");
+
+
+    this.originalMatrix.drawTiles(this.triplets, 0, -8, 30);
+    this.originalMatrix.drawRowLabels(this.rowLabels);
+    this.originalMatrix.drawColLabels(this.colLabels);
   }
 
-  update() {
+  update(params) {
+    console.log(params);
 
+    const {dim, biasesRow, biasesCol, steps, lr, l1, l2} = params;
+
+    const M = this.M;
+    const triplets = this.triplets;
+    const U = createRandomMatrix(M.length, dim + biasesRow + biasesCol);
+    const V = createRandomMatrix(M[0].length, dim + biasesRow + biasesCol);
+    const mu = meanT(triplets);
+
+    for (let step = 0; step < steps; step++) {
+      // warning: it is super-easy to overshot learning rate
+      gradDescStep(triplets, U, V, lr, false, l1, l2, biasesRow, biasesCol, mu);
+      if (step % 10 === 0) {
+        console.log(`loss (${step}): ${costRMSE(triplets, U, V, mu)}`);
+      }
+    }
+
+    const reconstructedTriplets = matrixToTriples(reconstructMatrix(U, V, false, mu));
+    this.reconstructedMatrix.drawTiles(reconstructedTriplets, 0, -8, 30);
+    this.reconstructedMatrix.drawColLabels(this.colLabels);
+
+    this.rowVectors.drawTiles(matrixToTriples(U), 1, -5, 5);
+    this.rowVectors.drawRowLabels(this.rowLabels);
+
+    this.colVectors.drawTiles(matrixToTriples(V), 1, -5, 5);
+    this.colVectors.drawRowLabels(this.colLabels);
   }
 
 }
 
 
 class Controls {
-  constructor(div) {
-    this.div = div;
+  constructor(rootDiv) {
+    this.div = rootDiv.append("div")
+      .style("position", "fixed");
     this.params = {};
     this.onUpdate = function(params) { console.log(params); };
   };
@@ -74,6 +117,7 @@ class Controls {
         .attr("step", step)
         .attr("value", value)
         .attr("class", name)
+        .style("width", "4em")
         .on("input", function() {
           that.params[name] = +this.value;
           that.onUpdate(that.params);
@@ -86,21 +130,16 @@ class Controls {
 }
 
 
-class Numerics {
-  constructor(g) {
-    this.g = g;
-  }
-
-}
-
 class MatrixTiles {
-  constructor(g) {
-    this.g = g;
+  constructor(rootG, a=50) {
+    this.g = rootG.append("g");
+    this.a = a;
   }
 
-  drawTiles() {
+  drawTiles(triplets, precision=1, scaleMin=0, scaleMax=1) {
+    const a = this.a;
     const color = d3.scaleLinear()
-      .domain([0.5, 5.5])
+      .domain([scaleMin, scaleMax])
       .range(["blue", "red"]);
 
     const cell = this.g.append('g')
@@ -119,13 +158,14 @@ class MatrixTiles {
       .attr("x", 0.8 * a)
       .attr("y", 0.6 * a)
       .attr("font-family", "Verdana")
-      .attr("font-size", 22)
+      .attr("font-size", 0.36 * a)
       .style("text-anchor", "end")
       .style("fill", "#fff")
-      .text((d) => d[2].toFixed(1));
+      .text((d) => d[2].toFixed(precision));
   }
 
   drawRowLabels(rowLabels) {
+    const a = this.a;
     this.g.append('g')
       .selectAll('.label-row').data(rowLabels)
       .enter().append("text")
@@ -133,20 +173,21 @@ class MatrixTiles {
       .attr("x", -a/4)
       .attr("y", (d, i) => (i + 0.7) * a)
       .attr("font-family", "Verdana")
-      .attr("font-size", 16)
+      .attr("font-size", 0.36 * a)
       .style("text-anchor", "end")
       .style("fill", "#000")
       .text((d) => d);
   }
 
-  drawColumnLabels(columnLabels) {
+  drawColLabels(colLabels) {
+    const a = this.a;
     this.g.append('g')
-      .selectAll('.label-column').data(columnLabels)
+      .selectAll('.label-column').data(colLabels)
       .enter().append("text")
       .attr("class", "label-column")
       .attr("transform", (d, i) => `translate(${(i + 0.7) * a}, ${-a/4}) rotate(-90)`)
       .attr("font-family", "Verdana")
-      .attr("font-size", 16)
+      .attr("font-size", 0.36 * a)
       .style("text-anchor", "start")
       .style("fill", "#000")
       .text((d) => d);
