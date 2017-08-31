@@ -134,6 +134,9 @@ class MatrixTiles {
   constructor(rootG, a=50) {
     this.g = rootG.append("g");
     this.a = a;
+    this.gCell = this.g.append('g');
+    this.gRowLabels = this.g.append('g');
+    this.gColLabels = this.g.append('g');
   }
 
   drawTiles(triplets, precision=1, scaleMin=0, scaleMax=1) {
@@ -142,8 +145,10 @@ class MatrixTiles {
       .domain([scaleMin, scaleMax])
       .range(["blue", "red"]);
 
-    const cell = this.g.append('g')
-      .selectAll('.cell').data(triplets)
+    const cell = this.gCell
+      .selectAll('.cell').data(triplets, (d) => `d[0] d[1]`);
+
+    // enter
 
     const cellEnter = cell.enter().append('g')
       .attr("class", "cell")
@@ -162,13 +167,26 @@ class MatrixTiles {
       .style("text-anchor", "end")
       .style("fill", "#fff")
       .text((d) => d[2].toFixed(precision));
+
+    // update
+
+    cell.select('rect')
+      .attr("fill", (d) => color(d[2]));
+
+    cell.select('text')
+      .text((d) => d[2].toFixed(precision));
+
+    // exit
+
+    cell.exit().remove();
   }
 
   drawRowLabels(rowLabels) {
     const a = this.a;
-    this.g.append('g')
-      .selectAll('.label-row').data(rowLabels)
-      .enter().append("text")
+    const label = this.gRowLabels
+      .selectAll('.label-row').data(rowLabels);
+
+    label.enter().append("text")
       .attr("class", "label-row")
       .attr("x", -a/4)
       .attr("y", (d, i) => (i + 0.7) * a)
@@ -177,13 +195,16 @@ class MatrixTiles {
       .style("text-anchor", "end")
       .style("fill", "#000")
       .text((d) => d);
+
+    label.exit().remove();
   }
 
   drawColLabels(colLabels) {
     const a = this.a;
-    this.g.append('g')
-      .selectAll('.label-column').data(colLabels)
-      .enter().append("text")
+    const label = this.gColLabels
+      .selectAll('.label-column').data(colLabels);
+
+    label.enter().append("text")
       .attr("class", "label-column")
       .attr("transform", (d, i) => `translate(${(i + 0.7) * a}, ${-a/4}) rotate(-90)`)
       .attr("font-family", "Verdana")
@@ -191,6 +212,8 @@ class MatrixTiles {
       .style("text-anchor", "start")
       .style("fill", "#000")
       .text((d) => d);
+
+    label.exit().remove();
   }
 
 }
