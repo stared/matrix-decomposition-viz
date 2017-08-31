@@ -139,7 +139,7 @@ function costRMSE(triplets, U, V, mean=0) {
     const [i, j, value] = triplet;
     res += Math.pow(dot(U[i], V[j]) + mean - value, 2);
   });
-  return Math.sqrt(res) / triplets.length;
+  return Math.sqrt(res / triplets.length);
 }
 
 function costLogLoss(triplets, U, V) {
