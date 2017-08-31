@@ -146,7 +146,7 @@ class MatrixTiles {
       .range(["blue", "red"]);
 
     const cell = this.gCell
-      .selectAll('.cell').data(triplets, (d) => `d[0] d[1]`);
+      .selectAll('.cell').data(triplets, (d) => `${d[0]} ${d[1]}`);
 
     // enter
 
