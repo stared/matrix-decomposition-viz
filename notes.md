@@ -18,7 +18,10 @@ M[i, j] = U[i] * V[j]
   * animation
   * more controls?
   * editibility
+  * error value
+  * history of error value?
 * examples
   * movies better
   * grades
   * likes
+  * interface to change between the examples
