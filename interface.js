@@ -11,6 +11,12 @@ class Widget {
     this.rowLabels = rowLabels;
     this.colLabels = colLabels;
 
+    this.min = d3.min(this.triplets, (d) => d[2]);
+    this.max = d3.max(this.triplets, (d) => d[2]);
+    this.vectorScale = Math.sqrt(this.max - this.min);
+    this.precision = Math.max(0, 1 - Math.floor(Math.log10(this.max)));
+    console.log(this.precision);
+
     this.controls = new Controls(div);
     this.controls.addRange("dim", "dimension", 0, 5, 1, 2);
     this.controls.addCheckbox("biasesRow", "row biases");
@@ -39,7 +45,7 @@ class Widget {
     this.colVectors.g.attr("transform", "translate(850, 400)");
 
 
-    this.originalMatrix.drawTiles(this.triplets, 0, -8, 30);
+    this.originalMatrix.drawTiles(this.triplets, this.precision, this.min, this.max);
     this.originalMatrix.drawRowLabels(this.rowLabels);
     this.originalMatrix.drawColLabels(this.colLabels);
   }
@@ -64,13 +70,13 @@ class Widget {
     }
 
     const reconstructedTriplets = matrixToTriples(reconstructMatrix(U, V, false, mu));
-    this.reconstructedMatrix.drawTiles(reconstructedTriplets, 0, -8, 30);
+    this.reconstructedMatrix.drawTiles(reconstructedTriplets, this.precision, this.min, this.max);
     this.reconstructedMatrix.drawColLabels(this.colLabels);
 
-    this.rowVectors.drawTiles(matrixToTriples(U), 1, -5, 5);
+    this.rowVectors.drawTiles(matrixToTriples(U), 1, -this.vectorScale, this.vectorScale);
     this.rowVectors.drawRowLabels(this.rowLabels);
 
-    this.colVectors.drawTiles(matrixToTriples(V), 1, -5, 5);
+    this.colVectors.drawTiles(matrixToTriples(V), 1, -this.vectorScale, this.vectorScale);
     this.colVectors.drawRowLabels(this.colLabels);
   }
 
