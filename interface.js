@@ -3,7 +3,7 @@
 
 
 class Widget {
-  constructor(div, matrix, rowLabels=[], colLabels=[]) {
+  constructor(div, matrix, rowLabels=[], colLabels=[], a=30) {
     this.div = div;
 
     this.M = matrix;
@@ -31,22 +31,30 @@ class Widget {
       .attr("width", 1200)
       .attr("height", 1200);
 
-    this.originalMatrix = new MatrixTiles(this.svg, 30);
+    this.originalMatrix = new MatrixTiles(this.svg, a);
     this.originalMatrix.g.attr("transform", "translate(370, 70)");
 
-    this.reconstructedMatrix = new MatrixTiles(this.svg, 30);
+    this.reconstructedMatrix = new MatrixTiles(this.svg, a);
     this.reconstructedMatrix.g.attr("transform", "translate(800, 70)");
 
-    this.rowVectors = new MatrixTiles(this.svg, 30);
+    this.rowVectors = new MatrixTiles(this.svg, a);
     this.rowVectors.g.attr("transform", "translate(600, 400)");
 
-    this.colVectors = new MatrixTiles(this.svg, 30);
+    this.colVectors = new MatrixTiles(this.svg, a);
     this.colVectors.g.attr("transform", "translate(850, 400)");
 
 
     this.originalMatrix.drawTiles(this.triplets, this.precision, this.min, this.max);
     this.originalMatrix.drawRowLabels(this.rowLabels);
     this.originalMatrix.drawColLabels(this.colLabels);
+
+    this.lossText = this.svg.append("text")
+      .attr("x", 800 + a * this.M[0].length/2)
+      .attr("y", 70 + (a + 3) * this.M.length)
+      .attr("font-family", "Verdana")
+      .attr("font-size", 0.5 * a)
+      .style("text-anchor", "middle")
+      .style("fill", "#000");
   }
 
   update(params) {
@@ -77,6 +85,8 @@ class Widget {
 
     this.colVectors.drawTiles(matrixToTriples(V), 1, -this.vectorScale, this.vectorScale);
     this.colVectors.drawRowLabels(this.colLabels);
+
+    this.lossText.text(`loss = ${costRMSE(triplets, U, V, mu).toFixed(3)}`);
   }
 
 }
