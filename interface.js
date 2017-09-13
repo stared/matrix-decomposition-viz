@@ -13,6 +13,9 @@ class Widget {
 
     this.min = d3.min(this.triplets, (d) => d[2]);
     this.max = d3.max(this.triplets, (d) => d[2]);
+    if (this.min === this.max && this.max === 1) {
+      this.min = 0;
+    }
     this.vectorScale = Math.sqrt(this.max - this.min);
     this.precision = Math.max(0, 1 - Math.floor(Math.log10(this.max)));
 

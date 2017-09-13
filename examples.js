@@ -56,6 +56,32 @@ const examples = [
       [NaN, 1, 1, 5, 4, NaN],
       [1, NaN, 2, 2, 1, 1]
     ]
+  },
+  {
+    name: "Exam",
+    // logistic: true,  // something for default options
+    cols: ["Q1", "Q2", "Q3", "Q4", "Q5", "Q6"],
+    rows: ["Sophie", "Mark", "Adrian", "Jason", "Leah"],
+    M: [
+      [1, 0, 1, 0, 0, 0],
+      [1, 1, 0, 1, 0, 0],
+      [1, 1, 1, 1, 0, 0],
+      [1, 1, 1, 0, 1, 0],
+      [1, 1, 1, 1, 1, 1]
+    ]
+  },
+  {
+    name: "Likes",
+    cols: ["StarCraft 2", "Half-Life", "Bioshock", "Witcher 3", "Dear Esther", "Life is Strange", "Minecraft"],
+    rows: ["frog111", "stared", "mark92", "xxxrogue", "aaandy", "h4llf1ire"],
+    M: [
+      [NaN,   1,   1, NaN,   1, NaN, NaN],
+      [  1,   1, NaN,   1, NaN, NaN, NaN],
+      [NaN, NaN, NaN, NaN,   1,   1,   1],
+      [  1, NaN,   1,   1, NaN, NaN, NaN],
+      [NaN, NaN, NaN, NaN,   1, NaN,   1],
+      [NaN,   1,   1, NaN,   1, NaN, NaN]
+    ]
   }
 ];
 
