@@ -3,7 +3,7 @@
 
 
 class Widget {
-  constructor(div, matrix, rowLabels=[], colLabels=[], a=30) {
+  constructor(div, matrix, rowLabels=[], colLabels=[], a=30, params={}) {
     this.div = div;
 
     this.M = matrix;
@@ -24,6 +24,7 @@ class Widget {
     this.controls.addRange("lr", "learning rate", 0.01, 1, 0.01, 0.1);
     this.controls.addRange("l1", "l1 regularization", 0.01, 1, 0.01, 0.0);
     this.controls.addRange("l2", "l2 regularization", 0.01, 1, 0.01, 0.0);
+    this.controls.addCheckbox("logistic", "logistic");
     this.controls.onUpdate = (params) => this.update(params);
 
 
@@ -60,23 +61,24 @@ class Widget {
   update(params) {
     console.log(params);
 
-    const {dim, biasesRow, biasesCol, steps, lr, l1, l2} = params;
+    const {dim, biasesRow, biasesCol, steps, lr, l1, l2, logistic} = params;
 
     const M = this.M;
     const triplets = this.triplets;
     const U = createRandomMatrix(M.length, dim + biasesRow + biasesCol);
     const V = createRandomMatrix(M[0].length, dim + biasesRow + biasesCol);
-    const mu = meanT(triplets);
+    const mu = logistic ? 0 : meanT(triplets);
+    const costFunction = logistic ? costLogLoss : costRMSE;
 
     for (let step = 0; step < steps; step++) {
       // warning: it is super-easy to overshot learning rate
-      gradDescStep(triplets, U, V, lr, false, l1, l2, biasesRow, biasesCol, mu);
+      gradDescStep(triplets, U, V, lr, logistic, l1, l2, biasesRow, biasesCol, mu);
       if (step % 10 === 0) {
-        console.log(`loss (${step}): ${costRMSE(triplets, U, V, mu)}`);
+        console.log(`loss (${step}): ${costFunction(triplets, U, V, mu)}`);
       }
     }
 
-    const reconstructedTriplets = matrixToTriples(reconstructMatrix(U, V, false, mu));
+    const reconstructedTriplets = matrixToTriples(reconstructMatrix(U, V, logistic && sigmoid, mu));
     this.reconstructedMatrix.drawTiles(reconstructedTriplets, this.precision, this.min, this.max);
     this.reconstructedMatrix.drawColLabels(this.colLabels);
 
@@ -86,7 +88,7 @@ class Widget {
     this.colVectors.drawTiles(matrixToTriples(V), 1, -this.vectorScale, this.vectorScale);
     this.colVectors.drawRowLabels(this.colLabels);
 
-    this.lossText.text(`loss = ${costRMSE(triplets, U, V, mu).toFixed(3)}`);
+    this.lossText.text(`loss = ${costFunction(triplets, U, V, mu).toFixed(3)}`);
   }
 
 }
