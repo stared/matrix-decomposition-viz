@@ -33,10 +33,10 @@ class Widget {
     this.reconstructedMatrix.g.attr("transform", "translate(800, 70)");
 
     this.rowVectors = new MatrixTiles(this.svg, 30);
-    this.rowVectors.g.attr("transform", "translate(800, 400)");
+    this.rowVectors.g.attr("transform", "translate(600, 400)");
 
     this.colVectors = new MatrixTiles(this.svg, 30);
-    this.colVectors.g.attr("transform", "translate(1050, 400)");
+    this.colVectors.g.attr("transform", "translate(850, 400)");
 
 
     this.originalMatrix.drawTiles(this.triplets, 0, -8, 30);
