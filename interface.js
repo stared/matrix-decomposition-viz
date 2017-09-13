@@ -15,7 +15,6 @@ class Widget {
     this.max = d3.max(this.triplets, (d) => d[2]);
     this.vectorScale = Math.sqrt(this.max - this.min);
     this.precision = Math.max(0, 1 - Math.floor(Math.log10(this.max)));
-    console.log(this.precision);
 
     this.controls = new Controls(div);
     this.controls.addRange("dim", "dimension", 0, 5, 1, 2);
