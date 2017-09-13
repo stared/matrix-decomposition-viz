@@ -82,6 +82,17 @@ const examples = [
       [NaN, NaN, NaN, NaN,   1, NaN,   1],
       [NaN,   1,   1, NaN,   1, NaN, NaN]
     ]
+  },
+  {
+    name: "Logistic Test",
+    cols: [],
+    rows: [],
+    M: [
+      [1.0, 0.5, 0.5, 0.0],
+      [1.0, 0.9, 0.8, 0.4],
+      [0.5, 0.2, 0.2, 0.0],
+      [0.8, 1.0, 0.5, 0.1]
+    ]
   }
 ];
 
