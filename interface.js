@@ -1,7 +1,3 @@
-// object-oriented version
-
-
-
 class Widget {
   constructor(div, matrix, rowLabels=[], colLabels=[], a=30, params={}) {
     this.div = div;
@@ -23,10 +19,10 @@ class Widget {
     this.controls.addRange("dim", "dimension", 0, 5, 1, 2);
     this.controls.addCheckbox("biasesRow", "row biases");
     this.controls.addCheckbox("biasesCol", "column biases");
-    this.controls.addRange("steps", "steps", 0, 500, 50, 200);
-    this.controls.addRange("lr", "learning rate", 0.01, 1, 0.01, 0.1);
-    this.controls.addRange("l1", "l1 regularization", 0.01, 1, 0.01, 0.0);
-    this.controls.addRange("l2", "l2 regularization", 0.01, 1, 0.01, 0.0);
+    this.controls.addRange("steps", "steps", 0, 500, 50, 300);
+    this.controls.addRange("lr", "learning rate", 0.01, 1, 0.01, 0.5);
+    this.controls.addRange("l1", "l1 regularization", 0.00, 1, 0.01, 0.0);
+    this.controls.addRange("l2", "l2 regularization", 0.00, 1, 0.01, 0.0);
     this.controls.addCheckbox("logistic", "logistic");
     this.controls.onUpdate = (params) => this.update(params);
 
