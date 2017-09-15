@@ -41,10 +41,10 @@ function matAddInPlace(V, U) {
   U.forEach((row, i) => row.forEach((value, j) => V[i][j] += value));
 }
 
-function matRegularizeInPlace(V, l1lr, l2lr, leaveColumns=0) {
+function matRegularizeInPlace(V, l1lr, l2lr, leaveColumns=0, l2DimensionStep=0) {
   V.forEach((row, i) => row.forEach((value, j) => {
     if (j >= leaveColumns) {
-      V[i][j] -= l2lr * value + l1lr * Math.sign(value);
+      V[i][j] -= (l2lr + l2DimensionStep* (j - leaveColumns)) * value + l1lr * Math.sign(value);
     }
   }));
 }
@@ -98,7 +98,7 @@ function sigmoid(z) {
 }
 
 function gradDescStep(triplets, U, V, lr, logistic=false, l1=0, l2=0,
-                      biasesRow=false, biasesCol=false, mean=0) {
+                      biasesRow=false, biasesCol=false, mean=0, l2DimStep=0) {
 
   const dU = createZeroMatrix(U.length, U[0].length);
   const dV = createZeroMatrix(V.length, V[0].length);
@@ -115,8 +115,8 @@ function gradDescStep(triplets, U, V, lr, logistic=false, l1=0, l2=0,
 
   // regularization
   // (here biases without regularization)
-  matRegularizeInPlace(U, lr * l1, lr * l2, biasesRow + biasesCol);
-  matRegularizeInPlace(V, lr * l1, lr * l2, biasesRow + biasesCol);
+  matRegularizeInPlace(U, lr * l1, lr * l2, biasesRow + biasesCol, lr * l2DimStep);
+  matRegularizeInPlace(V, lr * l1, lr * l2, biasesRow + biasesCol, lr * l2DimStep);
 
   // applying gradient
   matAddInPlace(U, dU);

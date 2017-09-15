@@ -23,6 +23,7 @@ class Widget {
     this.controls.addRange("lr", "learning rate", 0.01, 1, 0.01, 0.5);
     this.controls.addRange("l1", "l1 regularization", 0.00, 1, 0.01, 0.0);
     this.controls.addRange("l2", "l2 regularization", 0.00, 1, 0.01, 0.0);
+    this.controls.addRange("l2DimStep", "l2 dim step", 0.00, 0.1, 0.001, 0.0);
     this.controls.addCheckbox("logistic", "logistic");
     this.controls.onUpdate = (params) => this.update(params);
 
@@ -60,7 +61,7 @@ class Widget {
   update(params) {
     console.log(params);
 
-    const {dim, biasesRow, biasesCol, steps, lr, l1, l2, logistic} = params;
+    const {dim, biasesRow, biasesCol, steps, lr, l1, l2, logistic, l2DimStep} = params;
 
     const M = this.M;
     const triplets = this.triplets;
@@ -71,11 +72,14 @@ class Widget {
 
     for (let step = 0; step < steps; step++) {
       // warning: it is super-easy to overshot learning rate
-      gradDescStep(triplets, U, V, lr, logistic, l1, l2, biasesRow, biasesCol, mu);
-      if (step % 10 === 0) {
+      gradDescStep(triplets, U, V, lr, logistic, l1, l2, biasesRow, biasesCol, mu, l2DimStep);
+      if (step % Math.floor(steps/10) === 0) {
         console.log(`loss (${step}): ${costFunction(triplets, U, V, mu)}`);
       }
     }
+
+    matPrint(covariance(U), "rows covariance");
+    matPrint(covariance(V), "columns covariance");
 
     const reconstructedTriplets = matrixToTriples(reconstructMatrix(U, V, logistic && sigmoid, mu));
     this.reconstructedMatrix.drawTiles(reconstructedTriplets, this.precision, this.min, this.max);
