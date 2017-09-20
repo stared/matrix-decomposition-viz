@@ -1,5 +1,5 @@
 class Widget {
-  constructor(div, matrix, rowLabels=[], colLabels=[], a=30, params={}) {
+  constructor(div, matrix, rowLabels=[], colLabels=[], a=25, params={}) {
     this.div = div;
 
     this.M = matrix;
@@ -32,30 +32,31 @@ class Widget {
       .attr("width", 1200)
       .attr("height", 1200);
 
+    const height = a * d3.max(this.triplets, (d) => d[0] + 1);
+    const width = a * d3.max(this.triplets, (d) => d[1] + 1);
+    const topMargin = 70;
+    const leftMargin = 370;
+
     this.originalMatrix = new MatrixTiles(this.svg, a);
-    this.originalMatrix.g.attr("transform", "translate(370, 70)");
+    this.originalMatrix.g.attr("transform", `translate(${leftMargin},${topMargin})`);
+    this.originalMatrix.setLabel("original data");
 
     this.reconstructedMatrix = new MatrixTiles(this.svg, a);
-    this.reconstructedMatrix.g.attr("transform", "translate(800, 70)");
+    this.reconstructedMatrix.g.attr("transform", `translate(${leftMargin + width + a},${topMargin})`);
+    this.reconstructedMatrix.setLabel("A x B + c");
 
     this.rowVectors = new MatrixTiles(this.svg, a);
-    this.rowVectors.g.attr("transform", "translate(600, 400)");
+    this.rowVectors.g.attr("transform", `translate(${leftMargin + 2 * width + 2 * a}, ${topMargin})`);
+    this.rowVectors.setLabel("Factor B");
 
     this.colVectors = new MatrixTiles(this.svg, a);
-    this.colVectors.g.attr("transform", "translate(850, 400)");
-
+    this.colVectors.g.attr("transform", `translate(${leftMargin + width + a},${topMargin + height + a})`);
+    this.colVectors.setLabel("Factor A");
 
     this.originalMatrix.drawTiles(this.triplets, this.precision, this.min, this.max);
     this.originalMatrix.drawRowLabels(this.rowLabels);
     this.originalMatrix.drawColLabels(this.colLabels);
 
-    this.lossText = this.svg.append("text")
-      .attr("x", 800 + a * this.M[0].length/2)
-      .attr("y", 70 + (a + 3) * this.M.length)
-      .attr("font-family", "Verdana")
-      .attr("font-size", 0.5 * a)
-      .style("text-anchor", "middle")
-      .style("fill", "#000");
   }
 
   update(params) {
@@ -83,15 +84,12 @@ class Widget {
 
     const reconstructedTriplets = matrixToTriples(reconstructMatrix(U, V, logistic && sigmoid, mu));
     this.reconstructedMatrix.drawTiles(reconstructedTriplets, this.precision, this.min, this.max);
-    this.reconstructedMatrix.drawColLabels(this.colLabels);
 
     this.rowVectors.drawTiles(matrixToTriples(U), 1, -this.vectorScale, this.vectorScale);
-    this.rowVectors.drawRowLabels(this.rowLabels);
 
-    this.colVectors.drawTiles(matrixToTriples(V), 1, -this.vectorScale, this.vectorScale);
-    this.colVectors.drawRowLabels(this.colLabels);
-
-    this.lossText.text(`loss = ${costFunction(triplets, U, V, mu).toFixed(3)}`);
+    this.colVectors.drawTiles(matrixToTriples(V).map((d) => [d[1], d[0], d[2]]), 1, -this.vectorScale, this.vectorScale);
+    this.colVectors.drawColLabels(this.colLabels);
+    this.reconstructedMatrix.setLabel(`A x B + c;     loss = ${costFunction(triplets, U, V, mu).toFixed(3)}`);
   }
 
 }
@@ -154,6 +152,15 @@ class MatrixTiles {
   constructor(rootG, a=50) {
     this.g = rootG.append("g");
     this.a = a;
+    this.label = this.g.append("text")
+      .attr("class", "label")
+      .attr("x", a/4)
+      .attr("y", -a/4)
+      .attr("font-family", "Verdana")
+      .attr("font-size", 0.36 * a)
+      .style("text-anchor", "begin")
+      .style("fill", "#000");
+
     this.gCell = this.g.append('g');
     this.gRowLabels = this.g.append('g');
     this.gColLabels = this.g.append('g');
@@ -237,6 +244,10 @@ class MatrixTiles {
       .text((d) => d);
 
     label.exit().remove();
+  }
+
+  setLabel(text) {
+    this.label.text(text);
   }
 
 }
