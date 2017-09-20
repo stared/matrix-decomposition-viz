@@ -161,6 +161,9 @@ class MatrixTiles {
 
   drawTiles(triplets, precision=1, scaleMin=0, scaleMax=1) {
     const a = this.a;
+    const height = a * d3.max(triplets, (d) => d[0] + 1);
+    this.gColLabels.attr('transform', `translate(0,${height})`);
+
     const color = d3.scaleLinear()
       .domain([scaleMin, scaleMax])
       .range(["blue", "red"]);
@@ -226,7 +229,7 @@ class MatrixTiles {
 
     label.enter().append("text")
       .attr("class", "label-column")
-      .attr("transform", (d, i) => `translate(${(i + 0.7) * a}, ${-a/4}) rotate(-90)`)
+      .attr("transform", (d, i) => `translate(${(i + 0.5) * a}, ${a/4}) rotate(90)`)
       .attr("font-family", "Verdana")
       .attr("font-size", 0.36 * a)
       .style("text-anchor", "start")
