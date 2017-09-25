@@ -43,20 +43,21 @@ class Widget {
 
     this.reconstructedMatrix = new MatrixTiles(this.svg, a);
     this.reconstructedMatrix.g.attr("transform", `translate(${leftMargin + width + a},${topMargin})`);
-    this.reconstructedMatrix.setLabel("A x B + c");
+    this.reconstructedMatrix.setLabel("A \u00D7 B + c");
 
     this.rowVectors = new MatrixTiles(this.svg, a);
     this.rowVectors.g.attr("transform", `translate(${leftMargin + 2 * width + 2 * a}, ${topMargin})`);
-    this.rowVectors.setLabel("Factor B");
+    this.rowVectors.setLabel("Factor A");
 
     this.colVectors = new MatrixTiles(this.svg, a);
     this.colVectors.g.attr("transform", `translate(${leftMargin + width + a},${topMargin + height + a})`);
-    this.colVectors.setLabel("Factor A");
+    this.colVectors.setLabel("Factor B");
 
     this.originalMatrix.drawTiles(this.triplets, this.precision, this.min, this.max);
     this.originalMatrix.drawRowLabels(this.rowLabels);
     this.originalMatrix.drawColLabels(this.colLabels);
 
+    this.update(this.controls.params);
   }
 
   update(params) {
