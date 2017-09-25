@@ -29,13 +29,17 @@ class Widget {
 
 
     this.svg = div.append("svg")
-      .attr("width", 1200)
+      .attr("width", 1600)
       .attr("height", 1200);
 
-    const height = a * d3.max(this.triplets, (d) => d[0] + 1);
-    const width = a * d3.max(this.triplets, (d) => d[1] + 1);
-    const topMargin = 70;
-    const leftMargin = 370;
+    this.height = a * d3.max(this.triplets, (d) => d[0] + 1);
+    this.width = a * d3.max(this.triplets, (d) => d[1] + 1);
+    this.topMargin = 70;
+    this.leftMargin = 370;
+    const height = this.height;
+    const width = this.width;
+    const topMargin = this.topMargin;
+    const leftMargin = this.leftMargin;
 
     this.originalMatrix = new MatrixTiles(this.svg, a);
     this.originalMatrix.g.attr("transform", `translate(${leftMargin},${topMargin})`);
@@ -57,6 +61,10 @@ class Widget {
     this.originalMatrix.drawRowLabels(this.rowLabels);
     this.originalMatrix.drawColLabels(this.colLabels);
 
+    this.differenceMatrix = new MatrixTiles(this.svg, a);
+    this.differenceMatrix.g.attr("transform", `translate(${leftMargin + 2 * width + 3 * a},${topMargin})`);
+    this.differenceMatrix.setLabel("Difference");
+
     this.update(this.controls.params);
   }
 
@@ -67,10 +75,13 @@ class Widget {
 
     const M = this.M;
     const triplets = this.triplets;
-    const U = createRandomMatrix(M.length, dim + biasesRow + biasesCol);
-    const V = createRandomMatrix(M[0].length, dim + biasesRow + biasesCol);
+    const totalDim = dim + biasesRow + biasesCol;
+    const U = createRandomMatrix(M.length, totalDim);
+    const V = createRandomMatrix(M[0].length, totalDim);
     const mu = logistic ? 0 : meanT(triplets);
     const costFunction = logistic ? costLogLoss : costRMSE;
+
+    console.log(totalDim)
 
     for (let step = 0; step < steps; step++) {
       // warning: it is super-easy to overshot learning rate
@@ -83,7 +94,8 @@ class Widget {
     matPrint(covariance(U), "rows covariance");
     matPrint(covariance(V), "columns covariance");
 
-    const reconstructedTriplets = matrixToTriples(reconstructMatrix(U, V, logistic && sigmoid, mu));
+    const reconstructedM = reconstructMatrix(U, V, logistic && sigmoid, mu);
+    const reconstructedTriplets = matrixToTriples(reconstructedM);
     this.reconstructedMatrix.drawTiles(reconstructedTriplets, this.precision, this.min, this.max);
 
     this.rowVectors.drawTiles(matrixToTriples(U), 1, -this.vectorScale, this.vectorScale);
@@ -91,6 +103,15 @@ class Widget {
     this.colVectors.drawTiles(matrixToTriples(V).map((d) => [d[1], d[0], d[2]]), 1, -this.vectorScale, this.vectorScale);
     this.colVectors.drawColLabels(this.colLabels);
     this.reconstructedMatrix.setLabel(`A x B + c;     loss = ${costFunction(triplets, U, V, mu).toFixed(3)}`);
+
+    const diffM = matSubtract(reconstructedM, M);
+    this.differenceMatrix.drawTiles(matrixToTriples(diffM), this.precision, (this.min - this.max) / 2, (this.max - this.min) / 2);
+    const height = this.height;
+    const width = this.width;
+    const topMargin = this.topMargin;
+    const leftMargin = this.leftMargin;
+    const a = this.differenceMatrix.a;
+    this.differenceMatrix.g.attr("transform", `translate(${leftMargin + 2 * width + (3 + totalDim) * a},${topMargin})`);
   }
 
 }

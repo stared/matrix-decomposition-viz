@@ -49,6 +49,10 @@ function matRegularizeInPlace(V, l1lr, l2lr, leaveColumns=0, l2DimensionStep=0) 
   }));
 }
 
+function matSubtract(U, V) {
+  return U.map((row, i) => row.map((value, j) => value - V[i][j]));
+}
+
 function matrixToTriples(M) {
   const triples = [];
   M.forEach((row, i) =>
