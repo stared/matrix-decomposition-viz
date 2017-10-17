@@ -71,6 +71,36 @@ const examples = [
     ]
   },
   {
+    name: "Restaurants",
+    cols: ["Starbucks", "Costa", "Pizza Hut", "McDonalds", "Pizza Italiana", "Bobby Burger"],
+    rows: ["Wiola", "Andrzej", "Kamil", "Asia", "Staszek", "Maria", "Ola", "Janek"],
+    M: [
+       [ 3.,  3.,  3.,  2.,  2.,  2.],
+       [ 3.,  3.,  3.,  2.,  3.,  1.],
+       [ 4.,  3.,  4.,  4.,  1.,  1.],
+       [ 3.,  3.,  4.,  1.,  3.,  0.],
+       [ 4.,  3.,  5.,  3.,  2.,  1.],
+       [ 4.,  4.,  3.,  3.,  2.,  2.],
+       [ 3.,  3.,  5.,  3.,  1.,  1.],
+       [ 4.,  3.,  5.,  1.,  3.,  0.]
+    ]
+  },
+  {
+    name: "Restaurants Pred",
+    cols: ["Starbucks", "Costa", "Pizza Hut", "McDonalds", "Pizza Italiana", "Bobby Burger"],
+    rows: ["Wiola", "Andrzej", "Kamil", "Asia", "Staszek", "Maria", "Ola", "Janek"],
+    M: [
+       [ 3.,  NaN,  3.,  NaN,  2.,  2.],
+       [ 3.,  3.,  NaN,  2.,  NaN,  1.],
+       [ NaN,  3.,  4.,  4.,  1.,  1.],
+       [ NaN,  3.,  4.,  NaN,  3.,  0.],
+       [ 4.,  3.,  5.,  3.,  2.,  NaN],
+       [ 4.,  NaN,  3.,  NaN,  2.,  2.],
+       [ 3.,  3.,  5.,  3.,  NaN,  1.],
+       [ 4.,  3.,  NaN,  1.,  NaN,  0.]
+    ]
+  },
+  {
     name: "Likes",
     cols: ["StarCraft 2", "Half-Life", "Bioshock", "Witcher 3", "Dear Esther", "Life is Strange", "Minecraft"],
     rows: ["frog111", "stared", "mark92", "xxxrogue", "aaandy", "h4llf1ire"],
