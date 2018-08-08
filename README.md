@@ -2,7 +2,9 @@
 
 (Work in progress!)
 
-Aimed as an inteactive widget for a [Distill](https://distill.pub/) article on matrix factorizations in machine learning:
+![](screenshot.png)
+
+Aimed as an interactive widget for a [Distill](https://distill.pub/) article on matrix factorizations in machine learning:
 
 * compression and generalization (PCA, word2vec)
 * recommender systems and filling missing data
